@@ -31,14 +31,25 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     Instalar os seguintes pacotes.
     
     ```python
-    pip install django
-    pip install pillow
+    # Instala o Django na ultima versão
+    # esta sendo colocado o "3" depois do pip e do python, pois se refere ao Python 3
+    pip3 install django
+    # Quando quiser instalar uma versão especifica
+    python3 -m pip3 install Django==5.1.1
+    # O "-m" o Python irá reconhece o que tiver depois dele como Script e executará.
+    
+    # Manipulador de imagens
+    pip3 install pillow
     ```
     
     Para criar o arquivo *requirements.txt*
     
     ```python
-    pip freeze > requirements.txt
+    # Esse arquivo guarda as configuração, facilitando a Reinstalação caso necessario.
+    pip3 freeze > requirements.txt
+    
+    # Comando para fazer a Reintalação das dependencias.
+    pip3 install -r requirements.txt
     ```
 
 </details>
@@ -49,7 +60,7 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     
     ## **Criando o projeto**
     
-    “core” é nome do seu projeto e quando colocamos um “.” depois do nome do projeto significa que é para criar os arquivos na raiz da pasta. Assim não cria subpasta do projeto.
+    *__“core”__* é nome do seu projeto e quando colocamos um __*“.”*__ depois do nome do projeto significa que é para criar os arquivos na raiz da pasta. Assim não cria subpasta do projeto.
     
     ```python
     django-admin startproject core .
@@ -58,7 +69,7 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     **Testar a aplicação**
     
     ```python
-    python manage.py runserver
+    python3 manage.py runserver
     ```
     
 </details>
@@ -70,14 +81,23 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     ## **Vamos configurar nossos arquivos** *static*
     
     ```python
+    # Modulo "os" fornece funções para interagir com o sistema operacional.
     import os 
     
     # base_dir config
+    # Use isso quando o Projeto for ser usado em ambiente com Python anterior ao 3.4
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
     STATIC_DIR=os.path.join(BASE_DIR,'static')
     
+    # Caso prefire usar o base_dir padrão do Django ficaria assim
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    TEMPLATE_DIR = BASE_DIR / 'templates'
+    STATIC_DIR = BASE_DIR / 'static'
+    
     # Database
+    # O formato padrão do Django aparentemente fará a mesma coisa
+    # Por via das duvidas só use quando modificar a "base_dir"
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -85,11 +105,23 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
         }
     }
     
+    
+    # Essa Abordagem tem vantagem no desenvolvimento.
+    # Tanto no "STATIC" quanto no "MEDIA", teram rotas bem definidas
+    # Mais essa configuração abaixo só use quando modificar o "base_dir"
     STATIC_ROOT = os.path.join(BASE_DIR,'static')
     STATIC_URL = '/static/' 
     
     MEDIA_ROOT=os.path.join(BASE_DIR,'media')
     MEDIA_URL = '/media/'
+    
+    # Caso use a configuração padrão do "base_dir"
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / 'static'
+
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    
     
     # Internationalization
     # Se quiser deixar em PT BR
@@ -100,7 +132,7 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     USE_TZ = True
     ```
     
-    *myapp/urls.py*
+    *myapp/urls.py* **(Isso não é influenciado pelo "base_dir")**
     
     ```python
     from django.contrib import admin
@@ -112,8 +144,8 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
         path('admin/', admin.site.urls),
     ]
     
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # Adicionar Isto
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) # Adicionar Isto
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     ```
 </details>
 
@@ -126,7 +158,7 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     Para criar a aplicação no Django rode comando abaixo. “myapp” é nome do seu App.
     
     ```python
-    python manage.py startapp myapp
+    python3 manage.py startapp myapp
     ```
     
     Agora precisamos registrar nossa aplicação no *INSTALLED_APPS* localizado em *settings.py*.
@@ -153,7 +185,11 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     
     ## Template Base
     
-    1 - criar um arquivo base ***base.html*** onde vamos renderizar nosso conteúdo. 
+    0 - Criar a pasta _**"templates"**_, devido a configuração anteriores pode se colocar essa pasta onde quise
+    Mais por questões de organização crie ela dentro do diretorio do App.
+    ***    
+    1 - Criar um arquivo base ***base.html*** onde vamos renderizar nosso conteúdo. 
+    Com a utilização do Bootstrap usando um template base, vai manter a consistencia entre as diferente paginas do projeto.
     
     ```python
     {% load static %}
@@ -187,27 +223,37 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
 
 - **Cria uma View**
     
-    *index1.html*
+    *index.html*
+    A Criação do index.html tem que ser dentro do diretorio templates
     
     ```html
+    
     {% extends 'base.html' %}
+    
     {% block title %}Pagina Inicial{% endblock %}
+    
+    
     {% block content %}
     	<h1>Pagina Inicial</h1>
     {% endblock %}
     ```
     
+    Dentro do arquivo "views.py" do App
     *myapp/views.py*
+    Crie a função abaixo o nome "mysite" pode ser auterado
+    Mais lembre-se no decorrer do projeto.
     
     ```python
     from django.shortcuts import render
     
     # Create your views here.
     def mysite(request):
-        return render(request, 'index1.html')
+        return render(request, 'index.html')
     ```
     
+    Dentro do diretorio do App crie o arquivo "urls.py".
     criar arquivo *myapp*/*urls.py*
+    E no 'name' utilize o mesmo nome da função de criou no views.py do App
     
     ```
     from django.urls import path 
@@ -219,6 +265,7 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     ```
     
     urls.py do projeto. ***core/urls.py***
+    O arquivo urls.py criado no App precisa ser referenciado aqui
     
     ```python
     from django.contrib import admin
@@ -242,6 +289,8 @@ Esse é link do Vídeo Tutorial [Link](https://www.youtube.com/watch?v=0y5YdiK7x
     ```
     
     .gitignore
+    A criação desse arquivo com esse parametros abaixo vai fazer o git ignorar esse itens.
+    Precisa ser criado dentri da Raiz, no mesmo diretorio que o Projeto foi criado.
     
     ```python
     /tmp
